@@ -20,6 +20,7 @@ body {
     justify-content: center;
     position: relative;
     overflow: hidden; /* Hide overflow from any animations */
+    overflow-x: hidden; /* Prevent horizontal scroll on mobile */
 }
 
 /* Overlay for better text readability and aesthetic */
@@ -36,20 +37,23 @@ body::before {
 }
 
 .weather-app-container {
-    padding: 20px;
     width: 100%;
-    /* Ensure content is within view and centered */
+    max-width: 100vw;
+    box-sizing: border-box;
+    padding: 0 8px;
 }
 
 .weather-card {
     background-color: rgba(255, 255, 255, var(--card-bg-opacity)) !important; /* Semi-transparent white background */
     backdrop-filter: blur(10px); /* Frosted glass effect */
     border-radius: 20px;
-    max-width: 600px;
-    width: 100%;
+    max-width: 600px; /* Max width for larger screens */
+    width: 100%; /* Full width on smaller screens, constrained by max-width */
+    min-width: 0;
     border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Deeper shadow */
     animation-duration: 1s; /* Animate.css duration */
+    box-sizing: border-box;
 }
 
 .form-control.rounded-pill {
@@ -83,30 +87,33 @@ body::before {
     box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
 }
 
+/* Responsive font sizes for main elements */
 #location-name {
     font-family: 'Montserrat', sans-serif;
-    font-size: 3.5rem;
+    font-size: 3.5rem; /* Default for larger screens */
     letter-spacing: -1px;
+    word-break: break-word;
 }
 
 #country-state {
     font-family: 'Montserrat', sans-serif;
     font-weight: 300;
-    font-size: 1.5rem;
+    font-size: 1.5rem; /* Default for larger screens */
     opacity: 0.8;
 }
 
 #temperature {
     font-family: 'Montserrat', sans-serif;
-    font-size: 6rem; /* Large temperature */
+    font-size: 6rem; /* Default for larger screens */
     line-height: 1;
     margin-bottom: 10px;
+    word-break: break-word;
 }
 
 #weather-condition {
     font-family: 'Poppins', sans-serif;
     font-weight: 400;
-    font-size: 1.6rem;
+    font-size: 1.6rem; /* Default for larger screens */
     text-transform: capitalize;
 }
 
@@ -114,6 +121,10 @@ body::before {
     width: 120px;
     height: 120px;
     animation-duration: 0.8s;
+    max-width: 30vw;
+    max-height: 30vw;
+    min-width: 60px;
+    min-height: 60px;
 }
 
 .text-shadow-sm {
@@ -124,15 +135,20 @@ body::before {
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.small-details .col-md-auto {
+.small-details .col-sm-auto { /* Use col-sm-auto to make them stack on extra small, then auto-size */
     background-color: rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     padding: 10px 15px;
     margin: 5px;
     transition: all 0.3s ease;
+    /* Flexbox properties for alignment within the column */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-.small-details .col-md-auto:hover {
+.small-details .col-sm-auto:hover {
     transform: translateY(-3px);
     background-color: rgba(255, 255, 255, 0.15);
 }
@@ -163,56 +179,107 @@ body::before {
     transition: opacity 0.3s ease;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* Responsive adjustments using Bootstrap's breakpoints */
+
+/* Small devices (phones, 575.98px and below) */
+@media (max-width: 575.98px) {
+    body {
+        min-height: auto;
+        height: auto;
+        display: block;
+        align-items: initial;
+        justify-content: initial;
+    }
+    .weather-app-container {
+        padding: 0 2px;
+        max-width: 100vw;
+    }
+    .weather-card {
+        padding: 10px 4px;
+        border-radius: 12px;
+        max-width: 100vw;
+        width: 100vw;
+        min-width: 0;
+        box-sizing: border-box;
+    }
     #location-name {
+        font-size: 1.5rem;
+    }
+    #country-state {
+        font-size: 0.9rem;
+    }
+    #temperature {
         font-size: 2.5rem;
     }
-    #country-state {
-        font-size: 1.2rem;
-    }
-    #temperature {
-        font-size: 4.5rem;
-    }
     #weather-condition {
-        font-size: 1.3rem;
-    }
-    .small-details .col-6 {
-        flex: 0 0 48%; /* Adjust for 2 columns on small screens */
-        max-width: 48%;
-    }
-}
-
-@media (max-width: 576px) {
-    .weather-card {
-        padding: 20px;
-        border-radius: 15px;
-    }
-    #location-name {
-        font-size: 2rem;
-    }
-    #country-state {
         font-size: 1rem;
     }
-    #temperature {
-        font-size: 3.5rem;
-    }
-    #weather-condition {
-        font-size: 1.1rem;
+    #weather-icon {
+        width: 60px;
+        height: 60px;
+        max-width: 20vw;
+        max-height: 20vw;
     }
     .input-group {
         flex-direction: column;
+        gap: 8px;
+        width: 100%;
     }
     #city-input {
-        margin-bottom: 10px;
+        margin-bottom: 0;
         width: 100%;
+        font-size: 1rem;
     }
     .btn-primary.rounded-pill {
         width: 100%;
         margin-left: 0 !important;
+        font-size: 1rem;
+        padding: 0.6rem 1rem;
     }
-    .small-details .col-6 {
-        flex: 0 0 100%; /* Stack on very small screens */
+    .small-details .col-6, .small-details .col-sm-auto {
+        flex: 0 0 100%;
         max-width: 100%;
+        margin: 4px 0;
+        padding: 8px 4px;
+    }
+    .small-details i {
+        font-size: 1.3rem;
+    }
+    .small-details span {
+        font-size: 1rem;
+    }
+    .weather-card .card-body {
+        padding: 0;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    #location-name {
+        font-size: 2.8rem;
+    }
+    #country-state {
+        font-size: 1.3rem;
+    }
+    #temperature {
+        font-size: 5rem;
+    }
+    #weather-condition {
+        font-size: 1.4rem;
+    }
+    /* Small details will use col-sm-auto, which means they'll try to fit on one line
+       or wrap naturally based on content and available space. */
+    .small-details .col-sm-auto {
+        flex: 0 0 auto; /* Allow auto sizing */
+        max-width: none; /* Remove max-width constraint */
+    }
+}
+
+/* Large devices (desktops, 992px and up) and extra large (1200px and up)
+   The default styles already cater to these, so specific media queries might be less needed
+   unless you want further adjustments. */
+@media (min-width: 992px) {
+    .weather-card {
+        padding: 60px; /* Slightly more padding on larger screens */
     }
 }
