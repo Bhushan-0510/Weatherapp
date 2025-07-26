@@ -1,233 +1,218 @@
 :root {
-    --day-bg-color: rgba(255, 255, 255, 0.15);
-    --night-bg-color: rgba(0, 0, 0, 0.15);
-    --text-color-light: #ffffff;
-    --text-color-dark: #333333;
-    --primary-color: #4a6fa5;
-    --secondary-color: #ff9a3c;
+    --primary-color: #007bff; /* Bootstrap primary blue */
+    --text-color: #ffffff;
+    --card-bg-opacity: 0.1;
+    --transition-speed: 0.8s;
 }
 
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow-x: hidden;
-}
-
-.weather-app {
-    min-height: 100vh;
-    position: relative;
+    font-family: 'Poppins', sans-serif; /* Modern font */
+    color: var(--text-color);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    transition: background-image 1s ease-in-out;
+    transition: background-image var(--transition-speed) ease-in-out; /* Smooth transition for background */
+    min-height: 100vh;
     display: flex;
     align-items: center;
-    color: var(--text-color-light);
-    padding: 20px;
+    justify-content: center;
+    position: relative;
+    overflow: hidden; /* Hide overflow from any animations */
 }
 
-.background-overlay {
+/* Overlay for better text readability and aesthetic */
+body::before {
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 0;
+    background: rgba(0, 0, 0, 0.3); /* Dark overlay */
+    z-index: -1;
+    transition: background var(--transition-speed) ease-in-out;
 }
 
-.container {
-    position: relative;
-    z-index: 1;
+.weather-app-container {
+    padding: 20px;
     width: 100%;
+    /* Ensure content is within view and centered */
 }
 
 .weather-card {
-    background: var(--day-bg-color);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, var(--card-bg-opacity)) !important; /* Semi-transparent white background */
+    backdrop-filter: blur(10px); /* Frosted glass effect */
     border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    max-width: 600px;
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Deeper shadow */
+    animation-duration: 1s; /* Animate.css duration */
+}
+
+.form-control.rounded-pill {
+    border-radius: 50px !important;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
+}
+
+.form-control.rounded-pill::placeholder {
+    color: #666;
+}
+
+.form-control.rounded-pill:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    border-color: var(--primary-color);
+}
+
+.btn-primary.rounded-pill {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    border-radius: 50px !important;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
     transition: all 0.3s ease;
-    width: 100%;
 }
 
-.weather-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+.btn-primary.rounded-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
 }
 
-.search-container input {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: var(--text-color-light);
-    border-radius: 10px;
-    padding: 12px 15px;
-    width: 100%;
-}
-
-.search-container input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.search-container input:focus {
-    background: rgba(255, 255, 255, 0.3);
-    color: var(--text-color-light);
-    box-shadow: none;
-    border: none;
-}
-
-.search-container button {
-    border-radius: 10px;
-    padding: 12px;
-    background: var(--primary-color);
-    border: none;
-    transition: all 0.3s ease;
-    height: 100%;
-}
-
-.search-container button:hover {
-    background: var(--secondary-color);
-    transform: scale(1.05);
-}
-
-.location-info h1 {
-    font-weight: 700;
-    margin-bottom: 5px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    font-size: 2.5rem;
-}
-
-.location-info h3 {
-    font-weight: 400;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    font-size: 1.5rem;
-}
-
-.weather-main {
-    margin: 20px 0;
-}
-
-.weather-icon-container {
-    margin: 0 auto;
-    width: 100px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.weather-icon {
-    width: 100%;
-    height: auto;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
-
-.temperature-display {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    margin: 10px 0;
-}
-
-.temperature {
+#location-name {
+    font-family: 'Montserrat', sans-serif;
     font-size: 3.5rem;
+    letter-spacing: -1px;
+}
+
+#country-state {
+    font-family: 'Montserrat', sans-serif;
     font-weight: 300;
+    font-size: 1.5rem;
+    opacity: 0.8;
+}
+
+#temperature {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 6rem; /* Large temperature */
     line-height: 1;
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-bottom: 10px;
 }
 
-.temperature-unit {
-    font-size: 1.5rem;
-    margin-top: 10px;
-    opacity: 0.8;
+#weather-condition {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: 1.6rem;
+    text-transform: capitalize;
 }
 
-.weather-condition {
-    font-weight: 500;
-    margin-top: 10px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    font-size: 1.5rem;
+#weather-icon {
+    width: 120px;
+    height: 120px;
+    animation-duration: 0.8s;
 }
 
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
+.text-shadow-sm {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.detail-item i {
-    font-size: 1.5rem;
+.text-shadow-lg {
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.small-details .col-md-auto {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px 15px;
+    margin: 5px;
+    transition: all 0.3s ease;
+}
+
+.small-details .col-md-auto:hover {
+    transform: translateY(-3px);
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.small-details i {
+    font-size: 2rem;
     margin-bottom: 5px;
-    color: var(--secondary-color);
+    color: var(--primary-color); /* Highlight icons */
 }
 
-.detail-item span {
-    font-size: 0.9rem;
+.small-details span {
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
-.last-update {
-    opacity: 0.8;
-    font-size: 0.9rem;
+.small-details .text-uppercase {
+    font-size: 0.75rem;
+    opacity: 0.7;
 }
 
-/* Night mode styles */
-.night-mode {
-    background: var(--night-bg-color);
+#error-message {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #dc3545;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-color: #dc3545;
+    animation-duration: 0.5s;
+    transition: opacity 0.3s ease;
 }
 
 /* Responsive adjustments */
-@media (min-width: 576px) {
+@media (max-width: 768px) {
+    #location-name {
+        font-size: 2.5rem;
+    }
+    #country-state {
+        font-size: 1.2rem;
+    }
+    #temperature {
+        font-size: 4.5rem;
+    }
+    #weather-condition {
+        font-size: 1.3rem;
+    }
+    .small-details .col-6 {
+        flex: 0 0 48%; /* Adjust for 2 columns on small screens */
+        max-width: 48%;
+    }
+}
+
+@media (max-width: 576px) {
     .weather-card {
-        padding: 30px;
+        padding: 20px;
+        border-radius: 15px;
     }
-    
-    .location-info h1 {
-        font-size: 3rem;
+    #location-name {
+        font-size: 2rem;
     }
-    
-    .weather-icon-container {
-        width: 120px;
-        height: 120px;
-    }
-    
-    .temperature {
-        font-size: 4rem;
-    }
-    
-    .weather-condition {
-        font-size: 1.8rem;
-    }
-    
-    .detail-item i {
-        font-size: 1.8rem;
-    }
-    
-    .detail-item span {
+    #country-state {
         font-size: 1rem;
     }
-}
-
-@media (min-width: 768px) {
-    .location-info h1 {
+    #temperature {
         font-size: 3.5rem;
     }
-    
-    .temperature {
-        font-size: 5rem;
+    #weather-condition {
+        font-size: 1.1rem;
     }
-}
-
-@media (min-width: 992px) {
-    .weather-card {
-        padding: 40px;
+    .input-group {
+        flex-direction: column;
     }
-    
-    .location-info h1 {
-        font-size: 4rem;
+    #city-input {
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    .btn-primary.rounded-pill {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+    .small-details .col-6 {
+        flex: 0 0 100%; /* Stack on very small screens */
+        max-width: 100%;
     }
 }
