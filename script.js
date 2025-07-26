@@ -1,157 +1,275 @@
-const API_KEY = 'ffe4f34c88b04f318eb152639252407';
+const API_KEY = 'ffe4f34c88b04f318eb152639252407'; // Your provided API key
 const BASE_URL = 'https://api.weatherapi.com/v1/current.json';
 
-// Background images configuration
+const cityInput = document.getElementById('city-input');
+const searchButton = document.getElementById('search-button');
+const locationName = document.getElementById('location-name');
+const countryState = document.getElementById('country-state');
+const temperature = document.getElementById('temperature');
+const weatherCondition = document.getElementById('weather-condition');
+const weatherIcon = document.getElementById('weather-icon');
+const humidity = document.getElementById('humidity');
+const windSpeed = document.getElementById('wind-speed');
+const feelsLike = document.getElementById('feels-like');
+const pressure = document.getElementById('pressure');
+const errorMessage = document.getElementById('error-message');
+const weatherDisplay = document.getElementById('weather-display');
+
+// Map weather conditions to background images
+// IMPORTANT: Ensure these image files exist in your 'images/' folder
+// and the names match EXACTLY (case-sensitive on some systems).
 const backgroundImages = {
     day: {
-        sunny: 'https://images.unsplash.com/photo-1566438480900-0609be27a4be?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2096&q=80',
-        cloudy: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80',
-        rainy: 'https://images.unsplash.com/photo-1438449805896-28a666819a20?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-        snowy: 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2076&q=80',
-        foggy: 'https://images.unsplash.com/photo-1504253163759-c23fccaebb55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2080&q=80',
-        default: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'
+        'clear': 'images/day_clear.jpg',
+        'sunny': 'images/day_clear.jpg', // WeatherAPI sometimes uses 'sunny'
+        'partly cloudy': 'images/day_cloudy.jpg',
+        'cloudy': 'images/day_cloudy.jpg',
+        'overcast': 'images/day_cloudy.jpg',
+        'mist': 'images/day_mist.jpg',
+        'fog': 'images/day_mist.jpg',
+        'freezing fog': 'images/day_mist.jpg',
+
+        // Rain/Drizzle
+        'patchy light drizzle': 'images/day_rain.jpg',
+        'light drizzle': 'images/day_rain.jpg',
+        'freezing drizzle': 'images/day_rain.jpg',
+        'heavy freezing drizzle': 'images/day_rain.jpg',
+        'patchy light rain': 'images/day_rain.jpg',
+        'light rain': 'images/day_rain.jpg',
+        'moderate rain at times': 'images/day_rain.jpg',
+        'moderate rain': 'images/day_rain.jpg',
+        'heavy rain at times': 'images/day_rain.jpg',
+        'heavy rain': 'images/day_rain.jpg',
+        'light freezing rain': 'images/day_rain.jpg',
+        'moderate or heavy freezing rain': 'images/day_rain.jpg',
+        'light rain shower': 'images/day_rain.jpg',
+        'moderate or heavy rain shower': 'images/day_rain.jpg',
+        'torrential rain shower': 'images/day_rain.jpg',
+
+        // Snow/Sleet/Ice
+        'patchy light snow': 'images/day_snow.jpg',
+        'light snow': 'images/day_snow.jpg',
+        'patchy moderate snow': 'images/day_snow.jpg',
+        'moderate snow': 'images/day_snow.jpg',
+        'patchy heavy snow': 'images/day_snow.jpg',
+        'heavy snow': 'images/day_snow.jpg',
+        'light sleet': 'images/day_snow.jpg',
+        'moderate or heavy sleet': 'images/day_snow.jpg',
+        'ice pellets': 'images/day_snow.jpg',
+        'light showers of ice pellets': 'images/day_snow.jpg',
+        'moderate or heavy showers of ice pellets': 'images/day_snow.jpg',
+        'patchy light snow with thunder': 'images/day_snow.jpg', // Might combine with thunder later
+
+        // Thunder
+        'patchy light rain with thunder': 'images/day_thunder.jpg',
+        'moderate or heavy rain with thunder': 'images/day_thunder.jpg',
+        'thundery outbreaks possible': 'images/day_thunder.jpg',
     },
     night: {
-        clear: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80',
-        cloudy: 'https://images.unsplash.com/photo-1492011221367-f47e3ccd77a0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80',
-        rainy: 'https://images.unsplash.com/photo-1519692933481-e162a57d6721?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-        snowy: 'https://images.unsplash.com/photo-1510305393541-3b927aab3b64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80',
-        foggy: 'https://images.unsplash.com/photo-1507402016330-95ed0e9f091f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80',
-        default: 'https://images.unsplash.com/photo-1534278931827-8a259344abe7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80'
+        'clear': 'images/night_clear.jpg',
+        'partly cloudy': 'images/night_cloudy.jpg',
+        'cloudy': 'images/night_cloudy.jpg',
+        'overcast': 'images/night_cloudy.jpg',
+        'mist': 'images/night_mist.jpg',
+        'fog': 'images/night_mist.jpg',
+        'freezing fog': 'images/night_mist.jpg',
+
+        // Rain/Drizzle
+        'patchy light drizzle': 'images/night_rain.jpg',
+        'light drizzle': 'images/night_rain.jpg',
+        'freezing drizzle': 'images/night_rain.jpg',
+        'heavy freezing drizzle': 'images/night_rain.jpg',
+        'patchy light rain': 'images/night_rain.jpg',
+        'light rain': 'images/night_rain.jpg',
+        'moderate rain at times': 'images/night_rain.jpg',
+        'moderate rain': 'images/night_rain.jpg',
+        'heavy rain at times': 'images/night_rain.jpg',
+        'heavy rain': 'images/night_rain.jpg',
+        'light freezing rain': 'images/night_rain.jpg',
+        'moderate or heavy freezing rain': 'images/night_rain.jpg',
+        'light rain shower': 'images/night_rain.jpg',
+        'moderate or heavy rain shower': 'images/night_rain.jpg',
+        'torrential rain shower': 'images/night_rain.jpg',
+
+        // Snow/Sleet/Ice
+        'patchy light snow': 'images/night_snow.jpg',
+        'light snow': 'images/night_snow.jpg',
+        'patchy moderate snow': 'images/night_snow.jpg',
+        'moderate snow': 'images/night_snow.jpg',
+        'patchy heavy snow': 'images/night_snow.jpg',
+        'heavy snow': 'images/night_snow.jpg',
+        'light sleet': 'images/night_snow.jpg',
+        'moderate or heavy sleet': 'images/night_snow.jpg',
+        'ice pellets': 'images/night_snow.jpg',
+        'light showers of ice pellets': 'images/night_snow.jpg',
+        'moderate or heavy showers of ice pellets': 'images/night_snow.jpg',
+        'patchy light snow with thunder': 'images/night_snow.jpg',
+
+        // Thunder
+        'patchy light rain with thunder': 'images/night_thunder.jpg',
+        'moderate or heavy rain with thunder': 'images/night_thunder.jpg',
+        'thundery outbreaks possible': 'images/night_thunder.jpg',
     }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Default city
-    fetchWeather('London');
-    
-    // Form submission
-    document.getElementById('weather-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const city = document.getElementById('city-input').value.trim();
-        if (city) {
-            fetchWeather(city);
+// Default background if no specific match is found or on initial load
+// Make sure these fallback images exist as well.
+const defaultDayBg = 'images/day_clear.jpg';
+const defaultNightBg = 'images/night_clear.jpg';
+
+async function getWeatherData(city) {
+    console.log(`Attempting to fetch weather for: ${city}`);
+    try {
+        const response = await fetch(`${BASE_URL}?key=${API_KEY}&q=${city}&aqi=no`);
+        console.log("API Response Status:", response.status);
+
+        if (!response.ok) {
+            // Check for 400 Bad Request which often means city not found
+            if (response.status === 400) {
+                throw new Error('City not found. Please check the spelling.');
+            }
+            throw new Error(`API error: ${response.status} ${response.statusText}`);
         }
+        const data = await response.json();
+        console.log("Weather Data received:", data);
+        return data;
+    } catch (error) {
+        console.error("Error fetching weather data:", error);
+        errorMessage.textContent = error.message || "An unexpected error occurred.";
+        errorMessage.classList.remove('d-none');
+        weatherDisplay.classList.add('d-none'); // Hide weather display on error
+        // Also set a default background on error
+        setDynamicBackground(1, 'clear'); // Default to clear day background
+        return null;
+    }
+}
+
+function updateWeatherDisplay(data) {
+    if (!data) {
+        // Error message already displayed by getWeatherData
+        return;
+    }
+
+    errorMessage.classList.add('d-none'); // Hide any previous error messages
+    weatherDisplay.classList.remove('d-none'); // Ensure weather display is visible
+
+    // Populate data
+    locationName.textContent = data.location.name;
+    // Use data.location.region for state if available, otherwise just country
+    countryState.textContent = `${data.location.region ? data.location.region + ', ' : ''}${data.location.country}`;
+    temperature.innerHTML = `${Math.round(data.current.temp_c)}<sup class="temp-unit">°C</sup>`; // Use innerHTML for sup tag
+    weatherCondition.textContent = data.current.condition.text;
+    weatherIcon.src = data.current.condition.icon;
+    weatherIcon.alt = data.current.condition.text;
+
+    humidity.textContent = `${data.current.humidity}%`;
+    windSpeed.textContent = `${data.current.wind_kph} km/h`;
+    feelsLike.textContent = `${Math.round(data.current.feelslike_c)}°C`;
+    pressure.textContent = `${data.current.pressure_mb} mb`;
+
+    // Set dynamic background
+    setDynamicBackground(data.current.is_day, data.current.condition.text);
+
+    // Re-apply animations for new data
+    // Remove and add classes to restart CSS animations
+    weatherDisplay.classList.remove('animate__fadeIn');
+    void weatherDisplay.offsetWidth; // Trigger reflow
+    weatherDisplay.classList.add('animate__fadeIn');
+
+    locationName.classList.remove('animate__fadeInDown');
+    void locationName.offsetWidth;
+    locationName.classList.add('animate__fadeInDown');
+
+    temperature.classList.remove('animate__fadeIn');
+    void temperature.offsetWidth;
+    temperature.classList.add('animate__fadeIn');
+
+    weatherIcon.classList.remove('animate__zoomIn');
+    void weatherIcon.offsetWidth;
+    weatherIcon.classList.add('animate__zoomIn');
+
+    document.querySelectorAll('.small-details .col-md-auto').forEach((el, index) => {
+        el.classList.remove('animate__fadeInUp');
+        void el.offsetWidth;
+        el.style.animationDelay = `${0.1 * index}s`; // Stagger animation
+        el.classList.add('animate__fadeInUp');
     });
+}
+
+function setDynamicBackground(isDay, conditionText) {
+    console.log("--- Setting Dynamic Background ---");
+    console.log("Is Day:", isDay);
+    console.log("Condition Text from API:", conditionText);
+
+    let imageUrl;
+    const weatherType = isDay === 1 ? 'day' : 'night'; // API returns 1 for day, 0 for night
+    const normalizedCondition = conditionText.toLowerCase().trim(); // Normalize for lookup
+
+    console.log("Determined weather type:", weatherType);
+    console.log("Normalized condition for lookup:", normalizedCondition);
+
+    // 1. Try exact match first
+    if (backgroundImages[weatherType] && backgroundImages[weatherType][normalizedCondition]) {
+        imageUrl = backgroundImages[weatherType][normalizedCondition];
+        console.log("Exact match found:", imageUrl);
+    } else {
+        // 2. Fallback to broader category matching (contains logic)
+        console.log("No exact match, trying broader categories...");
+        if (normalizedCondition.includes('clear') || normalizedCondition.includes('sunny')) {
+            imageUrl = backgroundImages[weatherType]['clear'];
+        } else if (normalizedCondition.includes('cloud') || normalizedCondition.includes('overcast')) {
+            imageUrl = backgroundImages[weatherType]['cloudy'];
+        } else if (normalizedCondition.includes('rain') || normalizedCondition.includes('drizzle') || normalizedCondition.includes('showers')) {
+            imageUrl = backgroundImages[weatherType]['light rain']; // Use a common rain image
+        } else if (normalizedCondition.includes('snow') || normalizedCondition.includes('sleet') || normalizedCondition.includes('pellets')) {
+            imageUrl = backgroundImages[weatherType]['light snow']; // Use a common snow image
+        } else if (normalizedCondition.includes('thunder')) {
+            imageUrl = backgroundImages[weatherType]['thundery outbreaks possible']; // Use thunder image
+        } else if (normalizedCondition.includes('mist') || normalizedCondition.includes('fog')) {
+            imageUrl = backgroundImages[weatherType]['mist'];
+        } else {
+            // 3. Absolute fallback if no conditions match
+            imageUrl = isDay === 1 ? defaultDayBg : defaultNightBg;
+            console.warn("No specific background match found for condition:", conditionText, ". Using default:", imageUrl);
+        }
+    }
+
+    // Double-check if imageUrl is still undefined or invalid
+    if (!imageUrl || !imageUrl.startsWith('images/')) {
+        imageUrl = isDay === 1 ? defaultDayBg : defaultNightBg;
+        console.error("Final fallback: imageUrl was invalid. Using default:", imageUrl);
+    }
+
+    // Apply the background image
+    document.body.style.backgroundImage = `url('${imageUrl}')`;
+    console.log("Applied background image URL:", document.body.style.backgroundImage);
+}
+
+
+// Event Listeners
+searchButton.addEventListener('click', async () => {
+    const city = cityInput.value.trim();
+    if (city) {
+        errorMessage.classList.add('d-none'); // Hide error on new search
+        const data = await getWeatherData(city);
+        updateWeatherDisplay(data);
+    } else {
+        errorMessage.textContent = "Please enter a city name.";
+        errorMessage.classList.remove('d-none');
+        weatherDisplay.classList.add('d-none'); // Hide weather display if input is empty
+        // Set a default background if input is empty
+        setDynamicBackground(1, 'clear'); // Default to clear day background
+    }
 });
 
-async function fetchWeather(city) {
-    try {
-        // Show loading state
-        document.getElementById('city-name').textContent = 'Loading...';
-        document.getElementById('region-country').textContent = '--, --';
-        document.getElementById('temperature').textContent = '--';
-        document.getElementById('weather-condition').textContent = '--';
-        
-        const response = await fetch(`${BASE_URL}?key=${API_KEY}&q=${city}&aqi=yes`);
-        
-        if (!response.ok) {
-            throw new Error('City not found');
-        }
-        
-        const data = await response.json();
-        updateWeatherUI(data);
-    } catch (error) {
-        console.error('Error fetching weather:', error);
-        alert('Error fetching weather data. Please try another city.');
-        document.getElementById('city-name').textContent = 'Error';
-        document.getElementById('region-country').textContent = 'City not found';
+cityInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        searchButton.click();
     }
-}
+});
 
-function updateWeatherUI(data) {
-    const location = data.location;
-    const current = data.current;
-    
-    // Update location info
-    document.getElementById('city-name').textContent = location.name;
-    document.getElementById('region-country').textContent = `${location.region ? location.region + ', ' : ''}${location.country}`;
-    
-    // Update weather info
-    document.getElementById('temperature').textContent = current.temp_c;
-    document.getElementById('weather-condition').textContent = current.condition.text;
-    
-    // Update weather icon
-    const iconUrl = current.condition.icon.startsWith('//') 
-        ? `https:${current.condition.icon}` 
-        : current.condition.icon;
-    document.getElementById('weather-icon').src = iconUrl;
-    document.getElementById('weather-icon').alt = current.condition.text;
-    
-    // Update weather details
-    document.getElementById('wind-speed').textContent = `${current.wind_kph} km/h`;
-    document.getElementById('humidity').textContent = `${current.humidity}%`;
-    document.getElementById('pressure').textContent = `${current.pressure_mb} hPa`;
-    
-    // Update last updated time
-    const lastUpdated = new Date(location.localtime);
-    document.getElementById('last-updated').textContent = lastUpdated.toLocaleString();
-    
-    // Set background based on day/night and weather condition
-    setBackground(current.is_day, current.condition.text.toLowerCase());
-    
-    // Add animations
-    animateElements();
-}
-
-function setBackground(isDay, weatherCondition) {
-    const app = document.querySelector('.weather-app');
-    const card = document.querySelector('.weather-card');
-    
-    // Determine if it's day or night
-    const timeOfDay = isDay === 1 ? 'day' : 'night';
-    card.classList.toggle('night-mode', timeOfDay === 'night');
-    
-    // Determine weather type based on condition text
-    let weatherType = 'default';
-    
-    if (weatherCondition.includes('sunny') || weatherCondition.includes('clear')) {
-        weatherType = timeOfDay === 'day' ? 'sunny' : 'clear';
-    } 
-    else if (weatherCondition.includes('cloud') || weatherCondition.includes('overcast')) {
-        weatherType = 'cloudy';
-    } 
-    else if (weatherCondition.includes('rain') || 
-             weatherCondition.includes('drizzle') || 
-             weatherCondition.includes('shower') ||
-             weatherCondition.includes('thunder')) {
-        weatherType = 'rainy';
-    } 
-    else if (weatherCondition.includes('snow') || weatherCondition.includes('sleet') || weatherCondition.includes('blizzard')) {
-        weatherType = 'snowy';
-    } 
-    else if (weatherCondition.includes('fog') || 
-             weatherCondition.includes('mist') || 
-             weatherCondition.includes('haze') ||
-             weatherCondition.includes('smoke')) {
-        weatherType = 'foggy';
-    }
-    
-    // Set the background image
-    const bgImage = backgroundImages[timeOfDay][weatherType] || backgroundImages[timeOfDay].default;
-    app.style.backgroundImage = `url(${bgImage})`;
-}
-
-function animateElements() {
-    const elements = [
-        document.getElementById('city-name'),
-        document.getElementById('region-country'),
-        document.querySelector('.weather-main'),
-        document.querySelector('.weather-details')
-    ];
-    
-    elements.forEach((el, index) => {
-        // Reset animation
-        el.style.animation = 'none';
-        void el.offsetWidth; // Trigger reflow
-        
-        // Apply animation with delay
-        setTimeout(() => {
-            if (index < 2) {
-                el.classList.add('animate__animated', 'animate__fadeInDown');
-            } else {
-                el.classList.add('animate__animated', 'animate__fadeInUp');
-            }
-        }, index * 100);
-    });
-}
+// Initial load with a default city (Akola, India as per your current location)
+document.addEventListener('DOMContentLoaded', () => {
+    cityInput.value = 'Akola';
+    searchButton.click();
+});
